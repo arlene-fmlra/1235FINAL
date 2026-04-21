@@ -1,0 +1,409 @@
+Here is an HTML document that creates a quiz website with all 143 questions, displaying them with choices and grading them upon submission.
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>COMP1235 - Final Review Quiz (143 Questions)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: #1a1e24;
+        }
+
+        .quiz-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15);
+            overflow: hidden;
+            padding: 24px 28px 40px;
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            margin-top: 0;
+            margin-bottom: 0.25rem;
+            color: #0a4b6e;
+            border-left: 6px solid #0a6e4b;
+            padding-left: 20px;
+        }
+
+        .subhead {
+            color: #4a5568;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+            padding-left: 26px;
+            font-weight: 500;
+        }
+
+        .progress-stats {
+            background: #eef2ff;
+            padding: 14px 20px;
+            border-radius: 40px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .question-card {
+            background: #ffffff;
+            border-radius: 24px;
+            margin-bottom: 28px;
+            padding: 18px 22px 22px 22px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            border: 1px solid #e9edf2;
+        }
+
+        .question-text {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 18px;
+            line-height: 1.4;
+            background: #f9fafc;
+            padding: 12px 16px;
+            border-radius: 20px;
+            color: #0c2e3e;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-left: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 40px;
+            transition: background 0.1s ease;
+        }
+
+        .option:hover {
+            background: #f1f5f9;
+        }
+
+        input[type="radio"] {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            accent-color: #2c6e9e;
+            flex-shrink: 0;
+        }
+
+        .option-label {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #2d3a4b;
+        }
+
+        .submit-area {
+            text-align: center;
+            margin: 40px 0 30px;
+        }
+
+        button {
+            background: #1e6f3f;
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 14px 36px;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        button:hover {
+            background: #0f5a34;
+            transform: scale(1.02);
+        }
+
+        .result-area {
+            background: #eef2ff;
+            border-radius: 28px;
+            padding: 20px 28px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border: 1px solid #cddfe7;
+        }
+
+        .feedback {
+            margin-top: 12px;
+            font-size: 1rem;
+            font-weight: normal;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 35px;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        @media (max-width: 700px) {
+            .quiz-container {
+                padding: 16px;
+            }
+            .question-card {
+                padding: 14px;
+            }
+            .question-text {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container">
+    <h1>📘 COMP1235 · TypeScript · JS Advanced · jQuery · Grid</h1>
+    <div class="subhead">📌 143 questions sourced directly from lecture slides — select the correct option and submit</div>
+
+    <div class="progress-stats" id="progressStats">
+        <span>📋 Total questions: <strong id="totalQ">143</strong></span>
+        <span>✅ Graded after submit</span>
+        <span>🎯 Each question = 1 point</span>
+    </div>
+
+    <form id="quizForm">
+        <div id="questionsContainer"></div>
+        <div class="submit-area">
+            <button type="button" id="submitQuiz">✅ SUBMIT QUIZ & GRADE</button>
+        </div>
+    </form>
+    <div id="resultPanel" class="result-area" style="display: none;">
+        <span id="scoreDisplay"></span>
+        <div class="feedback" id="feedbackMsg"></div>
+    </div>
+    <footer>Based on COMP1235 lectures (TypeScript, JS modules, promises, closures, grid, jQuery, etc.) — word-by-word from slides.</footer>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // QUESTION BANK (143 items) – exactly as per answer key
+    // Each object: { text, options: [A,B,C,D], correct: 0-indexed }
+    // --------------------------------------------------------------
+    const questionsData = [
+        { text: "1. \"TypeScript is like syntactic sugar built on top of ______\" - Anders Hejlsberg", options: ["Java", "C++", "JavaScript", "Python"], correct: 2 },
+        { text: "2. \"Typescript is a superset of ______, ______, and ______.\"", options: ["ES3, ES5, and ES6", "HTML, CSS, and JS", "ES1, ES2, and ES3", "Java, C#, and C++"], correct: 0 },
+        { text: "3. \"Typescript helps avoid painful bugs that developers commonly run into when writing JavaScript by ______.\"", options: ["removing all variables", "type-checking", "deleting old code", "rewriting the browser"], correct: 1 },
+        { text: "4. \"Cross-platform: typescript runs on any platform that ______ runs on.\"", options: ["Java", "Python", "C++", "JavaScript"], correct: 3 },
+        { text: "5. \"Static type-checking: (this is big!) typescript uses static typing. This is done using ______.\"", options: ["type annotations", "console logs", "HTML tags", "CSS styles"], correct: 0 },
+        { text: "6. \"Using the type inference mechanism, if a variable is declared without a type, it will be ______ based on its value.\"", options: ["deleted", "ignored", "inferred", "converted to string"], correct: 2 },
+        { text: "7. \"Install typescript using ______ package manager (npm).\"", options: ["Python's", "Node.js", "Ruby's", "Java's"], correct: 1 },
+        { text: "8. \"Typescript provides an online playground https://www.______.org/play to write and test your code on the fly\"", options: ["javascript", "nodejs", "typescriptlang", "jquery"], correct: 2 },
+        { text: "9. \"TypeScript provides a command-line utility ______ that compiles (transpiles) TypeScript files (.ts) into JavaScript.\"", options: ["node", "npm", "tsc", "ts-node"], correct: 2 },
+        { text: "10. \"The tsc compiler needs a ______ configuration file to look for TypeScript files in the project.\"", options: ["package.json", "tscconfig.json", "webpack.config.js", "config.xml"], correct: 1 },
+        { text: "11. \"The directory where the ______ is located is considered as the root of the project.\"", options: ["package.json", "README.md", "tsconfig.json", "index.ts"], correct: 2 },
+        { text: "12. \"The tsconfig.json file is a standard JSON file (supports ______ specifications) so you can use comments, single quotes, and more within it.\"", options: ["JSON3", "JSON4", "JSON6", "JSON5"], correct: 3 },
+        { text: "13. \"The root-level options control how the project is presented to the TypeScript compiler, such as which TypeScript files to consider for the compilation. The compiler-options contain settings for the TypeScript compiler such as where to output the compiled JavaScript files in the project directory.\" This describes the structure of what file?", options: ["index.html", "tsconfig.json", "styles.css", "webpack.config"], correct: 1 },
+        { text: "14. \"The files array contains the location of the TypeScript files to consider for the compilation. These can be either relative paths or ______ paths on the disk.\"", options: ["virtual", "network", "absolute", "dynamic"], correct: 2 },
+        { text: "15. \"The TypeScript compiler compiles the files and outputs the JavaScript with ______ extension by keeping the same file name as the individual input file.\"", options: [".ts", ".jsx", ".js", ".mjs"], correct: 2 },
+        { text: "16. \"include and exclude: These options are just like files, however, we can optionally provide ______ patterns to locate input files.\"", options: ["regex", "text", "glob", "binary"], correct: 2 },
+        { text: "17. \"The outDir option specifies the directory for the output files generated by the TypeScript compiler.\" Where is this option located?", options: ["In the root-level options", "In the compilerOptions", "In the package.json", "In the .gitignore"], correct: 1 },
+        { text: "18. \"//NUMBER DATA TYPES let first:number = 123; //number ...\" This code demonstrates what TypeScript data type?", options: ["String", "Boolean", "Number", "Any"], correct: 2 },
+        { text: "19. \"//STRING let employeeName:string = 'John Smith'; //single quotes\" This is an example of which data type?", options: ["Number", "Boolean", "String", "Tuple"], correct: 2 },
+        { text: "20. \"//boolean let isPresent:boolean = true; //boolean primitive type\" This is an example of which data type?", options: ["String", "Number", "Boolean", "Void"], correct: 2 },
+        { text: "21. \"TypeScript introduced a new data type called tuple. ... Tuple is a new data type which includes two set of values of different data types.\" What is a tuple?", options: ["A single value of one type", "Two set of values of different data types", "Only string values", "Only number values"], correct: 1 },
+        { text: "22. \"String enums are similar to numeric enums, except that the enum values are initialized with ______ rather than numeric values.\"", options: ["boolean values", "null values", "string values", "undefined values"], correct: 2 },
+        { text: "23. \"TypeScript allows us to use more than one data type for a variable or a function parameter. This is called ______.\"", options: ["any type", "never type", "union type", "void type"], correct: 2 },
+        { text: "24. \"... we do not always have prior knowledge about the type of some variables ... we need a provision that can deal with dynamic content.\" This describes which type?", options: ["Void", "Never", "Any", "Unknown"], correct: 2 },
+        { text: "25. \"Similar to languages like java, void is used where there is no data type. For example, in return type of functions that do not return any value.\" What is void used for?", options: ["Functions that return a number", "Functions that return a string", "Functions that do not return any value", "Functions that return a boolean"], correct: 2 },
+        { text: "26. \"Typescript introduced a new type never, which indicates the values that will never occur. ...\" What does the never type indicate?", options: ["Values that always occur", "Values that will never occur", "Values that are null", "Values that are undefined"], correct: 1 },
+        { text: "27. \"It's not mandatory to annotate type's in TypeScript. TypeScript will infer variable types when there's no explicit information available.\" This is called:", options: ["Type casting", "Type inference", "Type destruction", "Type annotation"], correct: 1 },
+        { text: "28. \"Types are inferred by TypeScript compiler when: • Variables are initialized • Default values are set for parameters • Function return types are determined.\" What is this process called?", options: ["Type inference", "Type erasure", "Type assertion", "Type guarding"], correct: 0 },
+        { text: "29. \"Type assertion allows you to set the type of a value and tell the compiler not to infer it. There are two ways ... using angular bracket, or using the 'as' keyword.\" What are the two ways?", options: ["Using parentheses or curly brackets", "Using angular bracket or the \"as\" keyword", "Using quotes or backticks", "Using semicolons or commas"], correct: 1 },
+        { text: "30. \"In Typescript, the compiler expects a function to receive the exact number and type of arguments as defined in the function signature.\" What does the compiler check?", options: ["Only the return type", "Exact number and type of arguments", "Only the function name", "The global variables"], correct: 1 },
+        { text: "31. \"All optional parameters must follow required parameters and should be at the end.\" Where must optional parameters be placed?", options: ["At the beginning", "At the end", "In the middle", "Anywhere"], correct: 1 },
+        { text: "32. \"Typescript provides function overloading. ... However, the number of parameters should be the same.\" What is required for function overloading?", options: ["Different number of parameters", "Same number of parameters", "Different function names", "No parameters"], correct: 1 },
+        { text: "33. \"... we can use the rest parameter denoted by ellipsis ...\" What symbol denotes rest parameters?", options: ["Asterisk *", "Ampersand &", "Ellipsis ...", "Percent %"], correct: 2 },
+        { text: "34. \"Remember, rest parameters must come last in the function definition...\" Where must rest parameters come?", options: ["First", "Last", "In the middle", "Any position"], correct: 1 },
+        { text: "35. \"Interface is a structure that defines the contract in your application... This is also known as 'duck typing'.\" What is an interface?", options: ["A JavaScript file", "A structure that defines the contract in your application", "A CSS style", "An HTML element"], correct: 1 },
+        { text: "36. \"Interface in typescript can be used to define a type and also to implement it in the class.\" What can an interface be used as?", options: ["Only a function", "Only a variable", "A type and to implement in a class", "Only a module"], correct: 2 },
+        { text: "37. \"We can have optional properties, marked with a '?'. ...\" How are optional properties marked?", options: ["With an asterisk *", "With a question mark ?", "With an exclamation mark !", "With a colon :"], correct: 1 },
+        { text: "38. \"Typescript provides a way to mark a property as read only. This means that once a property is assigned a value, it cannot be changed!\" What does readonly mean?", options: ["The property can be changed multiple times", "Once assigned a value, it cannot be changed", "The property is optional", "The property is private"], correct: 1 },
+        { text: "39. \"Interfaces can extend one or more interfaces. This makes writing interfaces flexible and reusable.\" What can interfaces do?", options: ["Extend one or more interfaces", "Only extend one interface", "Cannot extend any interface", "Only extend classes"], correct: 0 },
+        { text: "40. \"Similar to languages like java and C#, interfaces in typescript can be implemented with a class. The class implementing the interface needs to strictly conform to the structure of the interface.\" How is an interface implemented?", options: ["With the \"implements\" keyword in a class", "With the \"extends\" keyword", "With the \"new\" keyword", "With the \"import\" keyword"], correct: 0 },
+        { text: "41. \"... typescript classes can be extended to create new classes with inheritance, using the keyword extends.\" What keyword is used for inheritance?", options: ["implements", "new", "extends", "super"], correct: 2 },
+        { text: "42. \"A TypeScript class can implement single or multiple interfaces.\" How many interfaces can a class implement?", options: ["Only one", "Only two", "Single or multiple", "None"], correct: 2 },
+        { text: "43. \"The find() method is an abstract method and so must be defined in the derived class.\" What must be done with an abstract method?", options: ["It must be ignored", "It must be defined in the derived class", "It cannot be overridden", "It must be private"], correct: 1 },
+        { text: "44. \"There are three types of access modifiers in typescript: public, private and protected.\" What are the three access modifiers?", options: ["open, closed, restricted", "public, private, protected", "internal, external, final", "static, dynamic, constant"], correct: 1 },
+        { text: "45. \"The protected access modifier is similar to the private access modifier, except that protected members can be accessed using their deriving classes.\" How is protected different from private?", options: ["Protected can be accessed anywhere", "Protected can be accessed using their deriving classes", "Protected is the same as public", "Protected cannot be accessed at all"], correct: 1 },
+        { text: "46. \"The static members of a class are accessed using the class name and dot notation, without creating an object e.g. <Classname>.<Staticmember>.\" How are static members accessed?", options: ["By creating an object first", "Using the class name and dot notation", "Using the \"this\" keyword", "They cannot be accessed"], correct: 1 },
+        { text: "47. \"The typescript code we write is in the global scope by default.\" Where is TypeScript code by default?", options: ["In module scope", "In local scope", "In the global scope", "In block scope"], correct: 2 },
+        { text: "48. \"Use the prefix export with all the definitions you want to include in a module...\" What prefix is used to include definitions in a module?", options: ["import", "require", "export", "default"], correct: 2 },
+        { text: "49. \"A module can be used in another module using an import statement.\" How is a module used in another module?", options: ["Using an export statement", "Using an import statement", "Using a require statement", "Using a include statement"], correct: 1 },
+        { text: "50. \"An ES6 module is simply a file that contains JavaScript. ... literals defined within the module are scoped ONLY to that module.\" Where are literals defined within a module scoped?", options: ["Globally", "ONLY to that module", "To all files", "To the window object"], correct: 1 },
+        { text: "51. \"You DO have to tell the browser that a JavaScript file is a module... via the type attribute as shown: <script src=\"art.js\" type=\"module\"></script>\" How do you tell the browser a file is a module?", options: ["type=\"javascript\"", "type=\"text\"", "type=\"module\"", "type=\"script\""], correct: 2 },
+        { text: "52. \"To make content in the module file available to other scripts outside the module, you have to make use of the export keyword.\" What keyword makes content available outside the module?", options: ["import", "private", "public", "export"], correct: 3 },
+        { text: "53. \"Named exports are distinguished by their names. There can be several named exports in a module.\" How are named exports distinguished?", options: ["By their index", "By their names", "By their type", "By their value"], correct: 1 },
+        { text: "54. \"... they can be renamed using the as keyword.\" What keyword renames named exports during import?", options: ["as", "like", "rename", "alias"], correct: 0 },
+        { text: "55. \"All named exports can be imported onto an object by using the asterisk * operator.\" What operator imports all named exports onto an object?", options: ["The plus + operator", "The asterisk * operator", "The ampersand & operator", "The percent % operator"], correct: 1 },
+        { text: "56. \"Asynchronous code is code that is doing (or seemingly doing) multiple things at once.\" What is asynchronous code?", options: ["Code that does one thing at a time", "Code that is doing multiple things at once", "Code that never runs", "Code that only runs synchronously"], correct: 1 },
+        { text: "57. \"A web API is simply a web resource that returns data instead of HTML, CSS, JavaScript, or images.\" What is a web API?", options: ["A web resource that returns HTML", "A web resource that returns images", "A web resource that returns data", "A web resource that returns CSS"], correct: 2 },
+        { text: "58. \"What the call to fetch will return instead is a special Promise object.\" What does fetch return?", options: ["The requested data directly", "A special Promise object", "An error immediately", "A string"], correct: 1 },
+        { text: "59. \"Cross-origin resource sharing (CORS) is a mechanism ... allows a JavaScript application in one origin ... to access resources from a different origin.\" What does CORS allow?", options: ["Same-origin requests only", "Access to resources from a different origin", "No access at all", "Only POST requests"], correct: 1 },
+        { text: "60. \"... it would add the following header to all of its responses: Access-Control-Allow-Origin: *\" What header allows any domain to access content?", options: ["Content-Type: application/json", "Access-Control-Allow-Origin: *", "Allow-Origin: all", "CORS-Enable: true"], correct: 1 },
+        { text: "61. \"By default, fetch uses the HTTP GET method.\" What HTTP method does fetch use by default?", options: ["POST", "PUT", "DELETE", "GET"], correct: 3 },
+        { text: "62. \"As we learned, a Promise is a placeholder for a value that we don't have now, but will arrive later.\" What is a Promise?", options: ["A value we have now", "A placeholder for a value that we don't have now, but will arrive later", "An error object", "A synchronous function"], correct: 1 },
+        { text: "63. \"... the handler function passed to the Promise constructor must take two parameters: a resolve() function and a reject() function.\" What two parameters does the Promise handler take?", options: ["success() and fail()", "resolve() and reject()", "then() and catch()", "ok() and error()"], correct: 1 },
+        { text: "64. \"For executing multiple promises, you can make use of the Promise.all() method...\" What method executes multiple promises in parallel?", options: ["Promise.race()", "Promise.single()", "Promise.all()", "Promise.multiple()"], correct: 2 },
+        { text: "65. \"ES7 introduced the async...await keywords that can both simplify the coding and even eliminate the typical nesting structure...\" What do async and await do?", options: ["Make code more complex", "Simplify coding and eliminate nesting structure", "Remove all promises", "Add more callbacks"], correct: 1 },
+        { text: "66. \"The await keyword provides exactly that functionality, namely, the ability to treat asynchronous functions that return Promise objects as if they were synchronous.\" What does await do?", options: ["Makes synchronous functions asynchronous", "Treats asynchronous functions as if they were synchronous", "Converts promises to callbacks", "Removes all errors"], correct: 1 },
+        { text: "67. \"There is an important limitation with using the await keyword: it must occur within a function prefaced with the async keyword\" Where must await occur?", options: ["In any function", "In a global scope", "Within a function prefaced with the async keyword", "In a loop"], correct: 2 },
+        { text: "68. \"In a functional programming language like JavaScript, we say objects have properties that are functions.\" How do objects in JavaScript have behavior?", options: ["Through classes", "Through methods from classes", "Objects have properties that are functions", "Through inheritance only"], correct: 2 },
+        { text: "69. \"In an object method, this refers to the object\" What does this refer to in an object method?", options: ["The global object", "The object", "undefined", "The element that received the event"], correct: 1 },
+        { text: "70. \"Convention says, function constructor names should be pascal cased.\" How should function constructor names be cased?", options: ["camelCased", "pascal cased", "snake_cased", "kebab-cased"], correct: 1 },
+        { text: "71. \"The key difference ... resides in the use of the new keyword before the function name.\" What keyword is used with a function constructor?", options: ["create", "make", "new", "construct"], correct: 2 },
+        { text: "72. \"JavaScript has four scopes: 1. function scope (also called local scope) 2. block scope 3. module scope 4. global scope\" What are the four scopes in JavaScript?", options: ["local, global, external, internal", "function, block, module, global", "private, public, protected, static", "class, object, method, property"], correct: 1 },
+        { text: "73. \"However, if declared with var within a block, then it will be available outside the block.\" What happens to variables declared with var within a block?", options: ["They are only available within the block", "They will be available outside the block", "They cause an error", "They are deleted"], correct: 1 },
+        { text: "74. \"A variable declared within a block using let or const will have block scope and only be available within the block it is defined.\" What scope do let and const have within a block?", options: ["Global scope", "Function scope", "Block scope", "Module scope"], correct: 2 },
+        { text: "75. \"A closure is the combination of a function bundled together (enclosed) with references to its surrounding state (the lexical environment).\" What is a closure?", options: ["The combination of a function bundled together with references to its surrounding state", "A type of loop", "A CSS style", "An HTML element"], correct: 0 },
+        { text: "76. \"To expose a function, return it or pass it to another function.\" How do you expose a closure?", options: ["By deleting it", "By returning it or passing it to another function", "By logging it to the console", "By making it global"], correct: 1 },
+        { text: "77. \"Closure means that an inner function always has access to the vars and parameters of its outer function, even after the outer function has returned.\" What does closure mean?", options: ["Inner function has access only to its own variables", "Inner function always has access to the vars and parameters of its outer function, even after the outer function has returned", "Outer function has access to inner function's variables", "Functions cannot access each other's variables"], correct: 1 },
+        { text: "78. \"A closure is actually an object consisting of the scope environment in which the function is created; that is, a closure is a function that has an implicitly permanent link between itself and its scope chain.\" What is a closure?", options: ["A function that has an implicitly permanent link between itself and its scope chain", "A temporary variable", "A loop construct", "A CSS selector"], correct: 0 },
+        { text: "79. \"Registering an event handler requires passing a callback function to the addEventListener()\" What does registering an event handler require?", options: ["A console log", "Passing a callback function to the addEventListener()", "A return statement", "A loop"], correct: 1 },
+        { text: "80. \"It is much more common to make use of an anonymous function passed to addEventListener()\" What is commonly passed to addEventListener()?", options: ["A named function only", "An anonymous function", "A string", "A number"], correct: 1 },
+        { text: "81. \"A functional expression is typically assigned to a constant and then referred to, there onward by its (constant) name.\" What is a functional expression assigned to?", options: ["A variable or constant", "A function name", "An object", "An array"], correct: 0 },
+        { text: "82. \"They are always invoked (called) using the variable name.\" How are functions stored in variables invoked?", options: ["Using the original function name", "Using the variable name", "Using the \"call\" method", "They cannot be invoked"], correct: 1 },
+        { text: "83. \"To code an arrow function: omit the function keyword and code an arrow operator (=>) preceding the braces\" What operator is used in an arrow function?", options: ["->", "=>", ">=", "==>"], correct: 1 },
+        { text: "84. \"If a function only has one parameter: you can omit the parenthesis around the parameter.\" When can you omit parentheses in an arrow function?", options: ["When there are no parameters", "When there are multiple parameters", "When the function only has one parameter", "Never"], correct: 2 },
+        { text: "85. \"If a function body consists of a single statement, you can omit the braces around that statement, as well as the return keyword if there is one.\" When can you omit braces in an arrow function?", options: ["Always", "When the function body consists of a single statement", "Never", "When there are multiple statements"], correct: 1 },
+        { text: "86. \"However, there is a way to specify default parameters: function foo(a=10,b=0) { return a+b; }\" What are default parameters used for?", options: ["To cause errors", "To provide default values for parameters", "To remove parameters", "To rename parameters"], correct: 1 },
+        { text: "87. \"The solution is to use the rest operator (...)\" What operator is used for a variable number of parameters?", options: ["Spread operator", "Rest operator (...)", "Plus operator", "Assignment operator"], correct: 1 },
+        { text: "88. \"A Callback function is simply a function that is passed to another function.\" What is a callback function?", options: ["A function that returns a value", "A function that is passed to another function", "A function that is never called", "A function with no parameters"], correct: 1 },
+        { text: "89. \"Typically, callback functions, are anonymous functions (functions with no names), often written using arrow notation (convention not required)\" How are callback functions typically written?", options: ["As named functions only", "As anonymous functions, often using arrow notation", "As class methods", "As global functions"], correct: 1 },
+        { text: "90. \"The spread operator (...) is used to expand or spread an iterable or an array.\" What does the spread operator do?", options: ["Compresses an array", "Expands or spreads an iterable or an array", "Deletes an array", "Converts an array to a string"], correct: 1 },
+        { text: "91. \"One of the most popular uses of the spread operator (...) is to copy (or extract) items into a single array.\" What is a popular use of the spread operator?", options: ["To delete items", "To copy or extract items into a single array", "To create functions", "To handle errors"], correct: 1 },
+        { text: "92. \"You can also use the spread operator with object literals\" Can the spread operator be used with object literals?", options: ["No", "Yes", "Only with arrays", "Only with strings"], correct: 1 },
+        { text: "93. \"JSON is a commonly used data-interchange format. Unlike other types of formats, JSON is both easily human and machine-readable.\" What is JSON?", options: ["A programming language", "A commonly used data-interchange format", "A database", "A web server"], correct: 1 },
+        { text: "94. \"The main difference between JSON and object literal notation is that property names are enclosed in quotes\" What is enclosed in quotes in JSON?", options: ["Values only", "Property names", "Both property names and values", "Nothing"], correct: 1 },
+        { text: "95. \"To turn this string into an actual JavaScript object requires using the built-in JSON object. // this turns the JSON string into an object const anObj = JSON.parse(text);\" What method turns a JSON string into an object?", options: ["JSON.stringify()", "JSON.convert()", "JSON.parse()", "JSON.object()"], correct: 2 },
+        { text: "96. \"Functions are defined by using the reserved word function and then the function name and (optional) parameters.\" How are functions defined?", options: ["Using the reserved word function", "Using the word def", "Using the word define", "Using parentheses only"], correct: 0 },
+        { text: "97. \"The above is formally called a function declaration.\" What is the example called?", options: ["A function expression", "A function declaration", "An arrow function", "A callback function"], correct: 1 },
+        { text: "98. \"Unit Testing is a software testing method by which individual units of source code - typically of similar components - are tested to determine if they are fit to use.\" What is Unit Testing?", options: ["Testing an entire application", "A software testing method by which individual units of source code are tested", "Testing only the user interface", "Testing only the database"], correct: 1 },
+        { text: "99. \"Mocha- Is a JavaScript framework for Node.js programs (or our vanilla js code)\" What is Mocha?", options: ["A CSS framework", "A JavaScript framework for Node.js programs", "A database", "A HTML template"], correct: 1 },
+        { text: "100. \"Chai is a BDD/TDD assertion library for node.js\" What is Chai?", options: ["A testing framework", "A BDD/TDD assertion library for node.js", "A CSS preprocessor", "A build tool"], correct: 1 },
+        { text: "101. \"The break statement ends a loop it jumps out of a loop\" What does the break statement do?", options: ["Continues to the next iteration", "Ends a loop, jumps out of a loop", "Restarts the loop", "Does nothing"], correct: 1 },
+        { text: "102. \"The continue statement end the current iteration of a loop, but allows the next iteration to proceed (jumps to the start of the loop)\" What does the continue statement do?", options: ["Ends the entire loop", "Ends the current iteration but allows the next iteration to proceed", "Exits the program", "Creates an error"], correct: 1 },
+        { text: "103. \"A regular expression consists of two types of characters: literals and metacharacters.\" What are the two types of characters in a regular expression?", options: ["Letters and numbers", "Literals and metacharacters", "Uppercase and lowercase", "Vowels and consonants"], correct: 1 },
+        { text: "104. \"In JavaScript, regular expressions are case sensitive and contained within forward slashes or by using RegExpr().\" How are regular expressions contained in JavaScript?", options: ["Within quotes", "Within forward slashes or by using RegExpr()", "Within parentheses", "Within curly braces"], correct: 1 },
+        { text: "105. \"Hoisting allows functions to be safely used in code before they are declared.\" What does hoisting allow?", options: ["Variables to be deleted", "Functions to be safely used in code before they are declared", "Errors to be ignored", "Code to run slower"], correct: 1 },
+        { text: "106. \"JavaScript function declarations are hoisted to the beginning of their current level\" Where are function declarations hoisted?", options: ["To the end of the file", "To the beginning of their current level", "To a different file", "To the console"], correct: 1 },
+        { text: "107. \"Destructuring is a JavaScript expression that allows us to extract data from arrays, objects, and maps and set them into new, distinct variables.\" What does destructuring allow?", options: ["To combine data", "To extract data from arrays, objects, and maps and set them into new, distinct variables", "To delete data", "To hide data"], correct: 1 },
+        { text: "108. \"Just as arrays can be destructured, so too can objects.\" Can objects be destructured?", options: ["No", "Yes, just as arrays can be destructured", "Only arrays can be destructured", "Only maps can be destructured"], correct: 1 },
+        { text: "109. \"A grid cell is the space made up by two adjacent row and column grid lines.\" What is a grid cell?", options: ["The space between rows and columns", "The space made up by two adjacent row and column grid lines", "A rectangular area that consists of one or more grid cells", "Column or row within the grid container"], correct: 1 },
+        { text: "110. \"You can define the size of a grid track using any unit of measure, including the fr unit.\" What unit represents a fraction of the available space?", options: ["px", "em", "fr", "rem"], correct: 2 },
+        { text: "111. \"The minmax() function is typically used ... to specify the minimum and maximum sizes of one or more tracks\" What does minmax() do?", options: ["Specifies only the minimum size", "Specifies only the maximum size", "Specifies the minimum and maximum sizes", "Removes sizing"], correct: 2 },
+        { text: "112. \"When you use the auto-fit keyword on the repeat(), as many grid items as will fit in the available space will be placed in the container and they will be expanded when necessary to fit the available space.\" What does auto-fit do?", options: ["Places only one item", "Places as many grid items as will fit and expands them when necessary", "Places no items", "Places items in a single column"], correct: 1 },
+        { text: "113. \"If you use the grid-template property, you code a forward slash (/) between the row and column values.\" What separates row and column values in grid-template?", options: ["A comma", "A space", "A forward slash (/)", "A semicolon"], correct: 2 },
+        { text: "114. \"If you use the grid-gap property to specify the gutters, you can omit the column gutter if it's the same as the row gutter.\" What does grid-gap specify?", options: ["The content inside grid cells", "The gutters (spaces) between rows and columns", "The grid lines", "The grid container border"], correct: 1 },
+        { text: "115. \"justify-content: Horizontally aligns grid tracks within a container. The default is start.\" What does justify-content do?", options: ["Vertically aligns grid tracks", "Horizontally aligns grid tracks within a container", "Aligns individual grid items", "Sets the grid gap"], correct: 1 },
+        { text: "116. \"align-content: Vertically aligns grid tracks within a container. The default is start.\" What does align-content do?", options: ["Horizontally aligns grid tracks", "Vertically aligns grid tracks within a container", "Sets the grid gap", "Defines grid columns"], correct: 1 },
+        { text: "117. \"Three different techniques for defining grid: 1. Numbered Lines 2. Named Lines 3. Template Areas\" What are the three techniques for defining grid areas?", options: ["Small, Medium, Large", "Numbered Lines, Named Lines, Template Areas", "Left, Center, Right", "Top, Bottom, Middle"], correct: 1 },
+        { text: "118. \"jQuery is a free, open-source JavaScript library that provides methods that make JavaScript programming easier.\" What is jQuery?", options: ["A CSS framework", "A free, open-source JavaScript library", "A database", "A web server"], correct: 1 },
+        { text: "119. \"Numerous selectors, methods, and event methods that make it easier to add JavaScript features to your web pages.\" What does jQuery offer?", options: ["Only selectors", "Numerous selectors, methods, and event methods", "Only event methods", "Only CSS styles"], correct: 1 },
+        { text: "120. \"jQuery is just a library, so you don't need a full plug-in for it\" Do you need a full plug-in for jQuery?", options: ["Yes", "No", "Only for advanced features", "Only for animations"], correct: 1 },
+        { text: "121. \"How to include jQuery after you downloaded it: Copy to known directory <script src=\"jquery-3.X.X.min.js\"></script>\" How do you include downloaded jQuery?", options: ["Using <link> tag", "Using <script> tag with src attribute", "Using <import> tag", "Using <include> tag"], correct: 1 },
+        { text: "122. \"Minified: minified, means compressed. New Lines removed, unnecessary spaces removed. Highly illegible.\" What is the difference between Uncompressed and Minified?", options: ["Uncompressed is smaller", "Minified is compressed with new lines and unnecessary spaces removed", "There is no difference", "Minified is more legible"], correct: 1 },
+        { text: "123. \"When you use jQuery, you can use the ($) to refer to the jQuery library.\" What symbol refers to the jQuery library?", options: ["#", ".", "$", "@"], correct: 2 },
+        { text: "124. \"$(\"#faqs\") // select the element with id = \"faqs\"\" What does $(\"#faqs\") select?", options: ["All elements with class faqs", "The element with id = \"faqs\"", "All <faqs> elements", "The first <p> element"], correct: 1 },
+        { text: "125. \"The syntax for calling a jQuery method: $(\"selector\").methodName(parameters)\" What is the syntax for calling a jQuery method?", options: ["$(\"selector\").methodName(parameters)", "$(\"selector\"):methodName(parameters)", "$(\"selector\") -> methodName(parameters)", "$(\"selector\") = methodName(parameters)"], correct: 0 },
+        { text: "126. \"How to get a value from a text box: const gallons = $(\"#gallons\").val();\" What method gets or sets the value of an input element?", options: ["text()", "html()", "val()", "attr()"], correct: 2 },
+        { text: "127. \"How to set the text in an element: $(\"#email_error\").text(\"Email address is required\");\" What method sets text in an element?", options: ["html()", "val()", "text()", "append()"], correct: 2 },
+        { text: "128. \"How to submit a form: $(\"#join_list\").submit();\" What method submits a form?", options: ["send()", "post()", "submit()", "action()"], correct: 2 },
+        { text: "129. \"... clicking on the button is a user's action, which triggers a click event and click event handler (function) saves data.\" What does a click trigger?", options: ["A CSS animation", "A click event and click event handler", "A page reload", "A console log"], correct: 1 },
+        { text: "130. \"The syntax for a jQuery event method: $(selector).eventMethodName( () => { // the statements of the event handler });\" What is the syntax for a jQuery event method?", options: ["$(selector).eventMethodName( () => { } )", "$(selector).on(eventMethodName, () => { })", "$(selector).bind(eventMethodName, () => { })", "$(selector).eventMethodName = () => { }"], correct: 0 },
+        { text: "131. \"The document ready event signals that the DOM of the page is now ready, so you can manipulate it without worrying that parts of the DOM have not yet been created.\" What does the document ready event signal?", options: ["That images are loaded", "That the DOM of the page is now ready", "That all CSS is loaded", "That the page is fully rendered"], correct: 1 },
+        { text: "132. \"The long way: $(document).ready( () => { alert(\"The DOM is ready\"); }); The short way: $(() => { alert(\"The DOM is ready\"); });\" What are the two ways to code the ready() event method?", options: ["The long way and the short way", "Using on() and off()", "Using bind() and unbind()", "Using live() and die()"], correct: 0 },
+        { text: "133. \"Example: selecting all the even tr elements of a table $(\"table tr:even\") //numbering start at 0, so first tag is even\" What does $(\"table tr:even\") select?", options: ["All tr elements", "The even tr elements of a table", "The odd tr elements of a table", "The first tr element"], correct: 1 },
+        { text: "134. \"Example: select all input elements with 'text' as the type attribute (type=\"text\") $(\":text\")\" What does $(\":text\") select?", options: ["All text in the document", "All input elements with type=\"text\"", "All text nodes", "All paragraphs"], correct: 1 },
+        { text: "135. \"Example: Get the value of the src attribute of an image $(\"#image\").attr(\"src\");\" What does attr() do?", options: ["Gets or sets attributes", "Gets or sets text", "Gets or sets HTML", "Gets or sets CSS"], correct: 0 },
+        { text: "136. \"Example: Add a class to the h2 descendants of the id=faqs element $(\"#faqs h2\").addClass(\"minus\");\" What does addClass() do?", options: ["Removes a class", "Adds a class", "Toggles a class", "Checks for a class"], correct: 1 },
+        { text: "137. \"Example: Put an h2 element into an <aside> element $(\"aside\").html(\"<h2>Table of Contents</h2>\");\" What does html() do?", options: ["Gets or sets text", "Gets or sets HTML content", "Gets or sets CSS", "Gets or sets attributes"], correct: 1 },
+        { text: "138. \"Example: Run a function for each <a> element within an id=\"image_list\" element $(\"#image_list a\").each( (index, elem) => { });\" What does each() do?", options: ["Runs a function once", "Runs a function for each element in a selection", "Runs a function after a delay", "Runs a function on page load"], correct: 1 },
+        { text: "139. \"Example: A double-click() event method for all text boxes $(\":text\").dblclick( evt => { evt.currentTarget.value = \"\"; });\" What does dblclick() do?", options: ["Handles single clicks", "Handles double clicks", "Handles mouse enter", "Handles mouse leave"], correct: 1 },
+        { text: "140. \"With the on() event method: $(\"#clear\").on(\"click\", () => {...}); With the shortcut method: $(\"#clear\").click( () => {...});\" What are two ways to attach an event handler?", options: ["Using on() or the shortcut method (click())", "Using bind() or live()", "Using delegate() or trigger()", "Using attach() or add()"], correct: 0 },
+        { text: "141. \"Example: How to remove an event handler from an event: $(\"#clear\").off(\"click\");\" What method removes an event handler?", options: ["remove()", "detach()", "off()", "unbind()"], correct: 2 },
+        { text: "142. \"Example: How to attach and remove and event handler (runs once only): $(\"#clear\").one(\"click\", () => {...});\" What method attaches a handler that runs once only?", options: ["once()", "single()", "one()", "first()"], correct: 2 },
+        { text: "143. \"Example: How to trigger an event. With the trigger() method: $(\"#clear\").trigger(\"click\"); With the shortcut method: $(\"#clear\").click();\" How can you trigger an event?", options: ["Using trigger() or the shortcut method", "Using fire() or invoke()", "Using call() or apply()", "Using run() or execute()"], correct: 0 }
+    ];
+
+    // Build the DOM
+    const container = document.getElementById("questionsContainer");
+    const totalSpan = document.getElementById("totalQ");
+    totalSpan.textContent = questionsData.length;
+
+    function buildQuiz() {
+        let html = '';
+        questionsData.forEach((q, idx) => {
+            const qNumber = idx + 1;
+            html += `<div class="question-card" data-qid="${idx}">
+                        <div class="question-text">${qNumber}. ${q.text}</div>
+                        <div class="options">`;
+            const optionLetters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, optIdx) => {
+                html += `<label class="option">
+                            <input type="radio" name="q${idx}" value="${optIdx}">
+                            <span class="option-label"><strong>${optionLetters[optIdx]}.</strong> ${opt}</span>
+                         </label>`;
+            });
+            html += `</div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    buildQuiz();
+
+    // grading logic
+    const submitBtn = document.getElementById("submitQuiz");
+    const resultPanel = document.getElementById("resultPanel");
+    const scoreDisplay = document.getElementById("scoreDisplay");
+    const feedbackMsg = document.getElementById("feedbackMsg");
+
+    submitBtn.addEventListener("click", () => {
+        let score = 0;
+        let total = questionsData.length;
+        for (let i = 0; i < total; i++) {
+            const selected = document.querySelector(`input[name="q${i}"]:checked`);
+            if (selected && parseInt(selected.value) === questionsData[i].correct) {
+                score++;
+            }
+        }
+        const percent = Math.round((score / total) * 100);
+        scoreDisplay.innerHTML = `🎯 Your score: ${score} / ${total}  (${percent}%)`;
+        if (score === total) {
+            feedbackMsg.innerHTML = "🌟 Perfect! You mastered every concept from the slides! 🌟";
+        } else if (score >= 120) {
+            feedbackMsg.innerHTML = "👍 Great job! Review the missed questions to sharpen your TypeScript/jQuery skills.";
+        } else {
+            feedbackMsg.innerHTML = "📚 Keep studying the lecture slides — focus on type annotations, promises, closures, and grid layout.";
+        }
+        resultPanel.style.display = "block";
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+</script>
+</body>
+</html>
+```
